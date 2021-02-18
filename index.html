@@ -1,0 +1,288 @@
+<html>
+	<head>
+		<title>Set Psi</title>
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="manifest" href="/site.webmanifest">
+		<!-- Import External Code, make sure file path is correct -->
+		<link rel="stylesheet" href="main.css">
+		<script id="gl-utilities" src="webgl.js"></script>
+		<script type="text/javascript" src="onload.js"></script>
+		<link rel="stylesheet" href="lib/codemirror.css">
+		<script src="lib/codemirror.js"></script>
+		<script src="lib/clike.min.js"></script>
+	</head>
+<div id="content">
+	<div id="display">
+			<canvas id="canvas" width="700" height="200"></canvas>
+			<br>
+			<br>
+			<button id="compile">Compile</button> 
+			<select id="iters">
+			    <option value="0">0</option>
+			    <option value="1">1</option>
+			    <option value="2">2</option>
+			    <option value="4">4</option>
+			    <option value="8">8</option>
+			    <option value="16">16</option>
+			    <option value="32">32</option>
+			    <option value="64">64</option>
+			    <option value="128">128</option>
+			</select>
+			&nbsp&nbsp&nbsp R : [ <input id="width" type="number" value="700"> , 
+			<input id="height" type="number" value="200" style="width:50px;"> ]
+			&nbsp&nbsp&nbsp N : <input type="number" id="N_value" value="20" step="1">
+			&nbsp&nbsp&nbsp dt : <input type="number" id="dt_value" value="1.0" step=".1">
+			&nbsptime : <b id="time_display" style="width:50px;">0</b>
+		<div id="programs">		
+		</div>
+		<div id="show_check_wrap">Show : <input type="checkbox" id="show_check" unchecked><br></div>
+		<div id="show">
+	<textarea id="Show" rows="2" cols="65">
+	</textarea>
+		</div>
+		<div id="new_program">
+			<button id="cancel">x</button>
+			<h1>New Program</h1>
+				Name : <input type="text" id="name" value="New Program"><br>
+			<br>
+				Dimensions : <br>
+				<input type="radio" id="1D" name="dim" value="1D"> 1D <br>
+				<input type="radio" id="2D" name="dim" value="2D"> 2D <br>
+			<br>
+				Variables : <br>
+				<input type="radio" id="v_z" name="variable" value="v_z"> v, z, k, m <br>
+				<input type="radio" id="psi" name="variable" value="psi"> Psi.xyzw (4) <br>
+				<input type="radio" id="psi1" name="variable" value="psi1"> Psi, Psi1 (8) <br>
+				<input type="radio" id="psi2" name="variable" value="psi2"> Psi, Psi1, Psi2 (12) <br>
+			<br>
+				Number of Stages : <input type=number id="n_stages" value = "1" step="1" min="1"> <br>
+			<br>
+			<button id="create_new_program">Create</button>
+		</div>
+		<div id="buttons">
+			<button id="new_button">New</button>
+			<button onclick="
+				info = {
+					n_dim : 1,
+					use_v_z : true,
+					display_show_code : false,
+					sim_code : ['dt = dt*0.01;\nk = 1.;\nm = 1.;\nv -= dt*k/m*z;\nz += dt*    v;\n// inital conditon :\nif(time < .1) {\n	z = 1.0;\n	v = 0.0;\n}'],
+					show_code : 'Psi = F(0.);\nvec2 u = Psi.yx*R.y*.25+0.5*R;\nPsi = vec4(1)*smoothstep(2.,1.,\n             min(abs(length((coord-0.5*R)*vec2(sqrt(Psi.w/Psi.z),1))-\n                     length((u-0.5*R)*vec2(sqrt(Psi.w/Psi.z),1))),\n             min(abs(length(coord-u)-10.),\n             length(coord-vec2(0.5*R.x,u.y))-10.)));'
+				}
+				button(info);
+				">Intro
+			</button>
+			<button onclick="
+				info = {
+					n_dim : 1,
+					use_v_z : true,
+					display_show_code : false,
+					sim_code : ['dt = dt*.1;\nk = 1.0;\nm = 1.0;\nv = v + dt*k/m*(left-z+right-z);\nz = z + dt*v;\nif (x < 1.0) z = .1*sin(pi*time*dt*sqrt(k/m)*60.0/N);\nif (x > N) z = 0.0;'],
+					show_code : 'float w = N/R.x;\nfloat x = floor(coord.x*w);\nfloat a = R.y*(0.5+0.5*F(x+0.5).x);\nfloat b = R.y*(0.5+0.5*F(x+1.5).x);\nfloat l = line(coord,vec2(x/w,a),vec2((x+1.)/w,b))-F(x).z;\nfloat r = min(length(coord - vec2((x+0.)/w,a))-2.-F(x+0.).w,\n              length(coord - vec2((x+1.)/w,b))-2.-F(x+1.).w);\nPsi = vec4(1)*smoothstep(1.,0.,min(r,l));'
+				}
+				button(info);
+				">Wave
+			</button>
+			<button onclick="
+				info = {
+					n_dim : 2,
+					use_v_z : true,
+					display_show_code : false,
+					sim_code : ['dt = dt*.1;\nk = 1.0;\nm = 1.0;\nv = v + dt*k/m*(left-z+right-z+up-z+down-z);\nz = z + dt*v;\nif (time < .1) z = 10.*exp(-.1*dot(coord-0.5*R,coord-0.5*R));'],
+					show_code : 'Psi = 0.5+0.5*Psi;'
+				}
+				button(info);
+				">Wave 2D
+			</button>
+			<button onclick="
+				info = {
+					n_dim : 1,
+					use_v_z : false,
+					display_show_code : false,
+					sim_code : [
+						'Psi.x += .05*dt*ddxx.y;\n\nif (time<.1) Psi.x = exp(-5e2*(x-0.5*(N+1.))*(x-0.5*(N+1.))/N/N);\nif(x<1.||x>N) Psi.x = 0.;',
+						'Psi.y -= .05*dt*ddxx.x;\n\nif(x<1.||x>N) Psi.y = 0.;'
+					],
+					show_code : 'float w = N/R.x;\nfloat x = floor(coord.x*w);\nvec2 a = R.y*(0.5+0.5*F(x+0.5).xy);\nvec2 b = R.y*(0.5+0.5*F(x+1.5).xy);\nfloat l = line(coord,vec2(x/w,a.x),vec2((x+1.)/w,b.x))-F(x).z;\nfloat l1 = line(coord,vec2(x/w,a.y),vec2((x+1.)/w,b.y))-F(x).z;\nfloat r = min(length(coord - vec2((x+0.)/w,a.x))-2.-F(x+0.).w,\n              length(coord - vec2((x+1.)/w,b.x))-2.-F(x+1.).w);\nfloat r1 = min(length(coord - vec2((x+0.)/w,a.y))-2.-F(x+0.).w,\n              length(coord - vec2((x+1.)/w,b.y))-2.-F(x+1.).w);\nPsi = vec4(1)*smoothstep(1.,0.,min(r,l));\nPsi.x += smoothstep(1.,0.,min(r1,l1));'
+				}
+				button(info);
+				">Schrodinger</button>
+			<button onclick="
+				info = {
+					n_dim : 1,
+					display_show_code : false,
+					sim_code : [
+							'dt = dt*.1;\nPsi.x = Psi.x - dt*(F(x+1.0).z-F(x-1.0).z)/2.0;\nif (time < .1) Psi = vec4(-1,0,0,x/N)',
+							'dt = dt*.1;\nPsi.z = Psi.z - dt*(F(x+1.0).x-F(x-1.0).x)/2.0;\nif (x<1.0||N-x<1.0) Psi.x = 0.0;',
+							'dt = dt*.1;\nPsi = F(x - dt*Psi.x);'
+								],
+					show_code : 'float ml = 1e3;\nfor (float i = -1.; i <= 1.; i++) {\n  float x1 = (coord.x/R.x*N),\n        x2 = round(x1)+i;\n  vec4  f1 = F(x1),\n        f2 = F(x2);\n  float y1 = R.y*(0.5+0.1*sin(25.0*pi*f1.w)),\n        y2 = R.y*(0.5+0.1*sin(25.0*pi*f2.w)),\n        l = length(coord-vec2(coord.x,y1))-2.,\n        r = length(coord-vec2(x2*R.x/N+f2.x*R.x/N,0.5*R.y))-5.-10.*f2.z,\n        l1= line(coord,vec2(x2*R.x/N,0.5*R.y),vec2(x2*R.x/N+f2.x*R.x/N,0.5*R.y))-1.;\n  ml = min(ml,min(l,min(r,l1)));\n}\nPsi = (0.75+0.25*F(coord.x/N))*smoothstep(1.,0.,ml)'
+				}
+				button(info);
+				">Longitudinal
+			</button>
+			<button onclick="
+				info = {
+					n_dim : 2,
+					display_show_code : false,
+					sim_code : [
+							'Psi.x = Psi.x - dt*(F(coord+vec2(1,0)).z-F(coord-vec2(1,0)).z)/2.0;\nPsi.y = Psi.y - dt*(F(coord+vec2(0,1)).z-F(coord-vec2(0,1)).z)/2.0;\nif (time < .1)\nPsi = vec4(-exp(-0.25*length(coord-0.5*R)),0,0,\n\t\t0.5+0.5*sign(sin(0.1*coord.x)*sin(0.1*coord.y)));',
+							'Psi.z = Psi.z - dt*(F(coord+vec2(1,0)).x-F(coord-vec2(1,0)).x+\n\t\t\t\t\tF(coord+vec2(0,1)).y-F(coord-vec2(0,1)).y)/2.0;',
+							'Psi = F(coord - dt*Psi.xy);'
+								],
+					show_code : 'Psi = 4.*abs(Psi)+Psi.w;'
+				}
+				button(info);
+				">Longitudinal 2D
+			</button>
+			<button onclick="
+				info = {
+					n_dim : 2,
+					display_show_code : false,
+					sim_code : [
+							'// center and normalize coordinate\ncoord = (coord-vec2(.2,.5)*R)/R.y;\nfloat frequency = 200.;\nfloat height = .2;\nPsi = vec4(0);\nfor (float i = 0.; i < N; i++) {\n	Psi += 1./N*sin(frequency*length(coord-vec2(0,height*i/N))-time);\n}'
+								],
+					show_code : 'Psi = F(coord);'
+				}
+				button(info);
+				">Diffraction
+			</button>
+		</div>
+	</div>
+</div>
+	<!--  Begin Shader Code  -->
+	<!-- Vertex Shader (Draws triangles in a square to display whole screen) : -->
+	<script type="x-shader" id="vs">#version 300 es
+		in vec2 av;
+		void main () {gl_Position = vec4(av*2.-1., 0, 1);}
+	</script>
+	<!-- Shader code that provides inputs and default functions : -->
+	<script type="x-shader" id="common">#version 300 es
+		#ifdef GL_FRAGMENT_PRECISION_HIGH
+			precision highp float;
+		#else
+			precision mediump float;
+		#endif
+		layout(location = 0) out vec4 fragColor;
+		layout(location = 1) out vec4 fragColor1;
+		layout(location = 2) out vec4 fragColor2;
+		#define Psi fragColor
+		#define Psi1 fragColor1
+		#define Psi2 fragColor2
+		#define U gl_FragCoord.xy
+		#define Main void main ()
+		uniform float N;
+		uniform float dt_value;
+		uniform vec2 R;
+		uniform vec2 Rs;
+		uniform float time;
+		uniform int I;
+		uniform int MODE;
+		uniform vec4 mouse;
+		uniform sampler2D texture0;
+		uniform sampler2D texture1;
+		uniform sampler2D texture2;
+		#define lookup(u,tx) (texelFetch(tx,ivec2(u),0))
+		vec4 interpolate (vec2 u, sampler2D tx) {
+			u = mod(u,R);
+			vec2 
+				f = floor(u-0.5)+0.5,
+				c = ceil(u-0.5)+0.5;
+			vec4 
+				_1 = lookup(f, tx),
+				_2 = lookup(vec2(f.x,c.y),tx),
+				_3 = lookup(vec2(c.x,f.y),tx),
+				_4 = lookup(c,tx),
+				_5 = mix(_1,_3,fract(u.x-0.5)),
+				_6 = mix(_2,_4,fract(u.x-0.5));
+			return mix(_5,_6,fract(u.y-0.5));
+		}
+		vec4 F (vec2 u) {return interpolate(u, texture0);}
+		vec4 F (float x) {return F(vec2(x,1.5));}
+		vec4 F1 (vec2 u) {return interpolate(u, texture1);}
+		vec4 F1 (float x) {return F(vec2(x,1.5));}
+		vec4 F2 (vec2 u) {return interpolate(u, texture2);}
+		vec4 F2 (float x) {return F(vec2(x,1.5));}
+
+		
+		#define ei(a) mat2(cos(a),-sin(a),sin(a),cos(a))
+		#define pi 3.14159265359
+		float line (vec2 p, vec2 a, vec2 b) { // returns distance to line segment for mouse input
+		    return length(p-a-(b-a)*clamp(dot(p-a,b-a)/dot(b-a,b-a),0.,1.));
+		}
+		float line (vec3 p, vec3 a, vec3 b) { // returns distance to line segment for lighting
+		    return length(p-a-(b-a)*clamp(dot(p-a,b-a)/dot(b-a,b-a),0.,1.));
+		}
+		float rand(float p)
+		{
+		    p = fract(p * .1031);
+		    p *= p + 33.33;
+		    p *= p + p;
+		    return fract(p);
+		}
+		vec2 rand(vec2 p)
+		{
+			vec3 p3 = fract(vec3(p.xyx) * vec3(.1031, .1030, .0973));
+		    p3 += dot(p3, p3.yzx+33.33);
+		    return fract((p3.xx+p3.yz)*p3.zy);
+
+		}
+	</script>
+	<!-- Simulation code, A code and B code inserted into '// INSERT' -->
+	<script type="x-shader" id="A">
+		Main {
+			vec2 coord = U;
+			if (Rs.y < 4.) coord.y = 1.5;
+			Psi = F(coord);
+			vec4 
+				n = F(coord + vec2(0,1)),
+				e = F(coord + vec2(1,0)),
+				s = F(coord - vec2(0,1)),
+				w = F(coord - vec2(1,0)),
+				dx = e-w,
+				dy = n-s,
+				ddxx = (e+w-2.*Psi)*0.25,
+				ddyy = (n+s-2.*Psi)*0.25;
+			vec4 
+				n1 = F1(coord + vec2(0,1)),
+				e1 = F1(coord + vec2(1,0)),
+				s1 = F1(coord - vec2(0,1)),
+				w1 = F1(coord - vec2(1,0)),
+				dx1 = e1-w1,
+				dy1 = n1-s1,
+				ddxx1 = (e1+w1-2.*Psi1)*0.25,
+				ddyy1 = (n1+s1-2.*Psi1)*0.25;
+			vec4 
+				n2 = F2(coord + vec2(0,1)),
+				e2 = F2(coord + vec2(1,0)),
+				s2 = F2(coord - vec2(0,1)),
+				w2 = F2(coord - vec2(1,0)),
+				dx2 = e2-w2,
+				dy2 = n2-s2,
+				ddxx2 = (e2+w2-2.*Psi2)*0.25,
+				ddyy2 = (n2+s2-2.*Psi2)*0.25;
+			float x = coord.x, y = coord.y, z = Psi.x, v = Psi.y, k = 1., m = 1., dt = dt_value;
+			float left = w.x, right = e.x, up = n.x, down = s.x;
+			//INSERT
+			;
+			if (MODE == 1) Psi = vec4(z,v,k,m);
+			if (mouse.z>0.0) {
+				float o = 30.*(coord.x/N-mouse.x/R.x);
+				if (Rs.y>4.) o = length(mouse.xy-coord);
+				Psi.xy = mix(Psi.xy, vec2(.5,0), exp(-o*o));
+			}
+			if (I<1) Psi = vec4(0);
+		}
+	</script>
+	<script type="x-shader" id="out">
+		Main {
+			vec2 coord = U;
+			Psi = F(coord);
+			//INSERT
+			;
+			Psi.w = 1.;
+		}
+	</script>
+</html>
