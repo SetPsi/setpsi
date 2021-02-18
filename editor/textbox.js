@@ -261,7 +261,11 @@ class TextBox {
                     this.select3=this.cursor1;
                 }
             }
-        } else if (key === "end") {
+        } else if (key ==== "home") {
+		this.cursor1 = 0;
+		this.select1 = this.cursor1;
+		this.select3 = this.cursor1;
+	} else if (key === "end") {
 		this.cursor1 = this.text[this.cursor0].length;
 		this.select1 = this.cursor1;
 		this.select3 = this.cursor1;
