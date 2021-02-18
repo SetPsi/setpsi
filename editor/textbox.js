@@ -251,7 +251,7 @@ class TextBox {
                 this.select2 = this.cursor0;
                 this.select3 = this.cursor1;
             }
-        } else if (key==="capslock"||key==="alt"||key==="meta"||key==="control"||key==="contextmenu" || key==="end" || key==="pagedown" || key==="pageup" || key==="help" || (key.length > 1 && key[0]==="f")) {
+        } else if (key==="capslock"||key==="alt"||key==="meta"||key==="control"||key==="contextmenu" || key==="pagedown" || key==="pageup" || key==="help" || (key.length > 1 && key[0]==="f")) {
             // do nothing  
         } else if (key==="shift") {
             if (this.keys["shift"]==="down") {
@@ -261,7 +261,11 @@ class TextBox {
                     this.select3=this.cursor1;
                 }
             }
-        } else if (key==="backspace" || key==="delete") {
+        } else if (key === "end") {
+		this.cursor1 = this.text[this.cursor0].length;
+		this.select1 = this.cursor1;
+		this.select3 = this.cursor1;
+	} else if (key==="backspace" || key==="delete") {
             if (key==="delete"&&this.select1===this.select3&&this.select0===this.select2) {
                 let i = this.cursor1+1;
                 if (i > this.text[this.cursor0].length && this.cursor0<this.text.length-1) {
