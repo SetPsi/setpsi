@@ -1,6 +1,6 @@
 <?php
     session_start();
-    $root = "/home/wyattfla/setpsi.com";
+    $root = realpath(dirname(__FILE__)."/../."); 
 ?>
 
 <?php
