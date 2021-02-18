@@ -261,7 +261,7 @@ class TextBox {
                     this.select3=this.cursor1;
                 }
             }
-        } else if (key ==== "home") {
+        } else if (key === "home") {
 		this.cursor1 = 0;
 		this.select1 = this.cursor1;
 		this.select3 = this.cursor1;
