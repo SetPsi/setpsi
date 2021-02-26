@@ -42,13 +42,13 @@ class Options {
     }
     constructor () {
         this.buttons = [];
-        this.buttons.push(new Button ("{Set}", ()=>{}));
-        this.buttons.push(new Button ("Borrow Code", ()=>{}))
-        this.buttons.push(new Button ("Display", ()=>{}));
-        this.buttons.push(new Button ("File Input", ()=>{}));
-        this.buttons.push(new Button ("Number Input", ()=>{}));
-        this.buttons.push(new Button ("Code Input", ()=>{}));
-        this.buttons.push(new Button ("Mouse Event", ()=>{}));
-        this.buttons.push(new Button ("Keyboard Event", ()=>{}));
+        this.buttons.push(new Button ("[Set]", ()=>{alert("Grid = [c:{x,y}]");}));
+        this.buttons.push(new Button ("Out:", ()=>{alert("Display, print, or download")}));
+        this.buttons.push(new Button ("Value", ()=>{alert("a = {x,y,z,w}");}))
+        this.buttons.push(new Button ("Input", ()=>{alert("input type?");}));
+       	this.buttons.push(new Button ("File", ()=>{alert("upload file");}));
+        this.buttons.push(new Button ("Event", ()=>{alert("keyboard or mouse");}));
+       	this.buttons.push(new Button ("Draw", ()=>{alert("Points,Lines,Mesh");}));
+       	this.buttons.push(new Button ("Text", ()=>{alert("Explain or describe");}));
     }
 }
