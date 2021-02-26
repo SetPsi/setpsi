@@ -67,7 +67,7 @@
                 echo file_get_contents($root."/editor/code_editor.js");
                 echo file_get_contents($root."/editor/editor.js");
                 echo file_get_contents($root."/editor/main.js");
-            ?>
+	?>
         </script>
         <p id="error">Something is wrong. Please try a different browser.</p>
     </body>
